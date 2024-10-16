@@ -1,4 +1,4 @@
-# Untitled notebook
+# Nasa API Playground
 
 ```elixir
 Mix.install([
@@ -6,6 +6,8 @@ Mix.install([
   {:jason, "~> 1.4"},
   {:kino, "~> 0.14.1"}
 ])
+
+api_key = System.fetch_env!("LB_API_KEY")
 ```
 
 ## Nasa Image API
@@ -13,7 +15,8 @@ Mix.install([
 Fetch a single Image from the NASA Image Api Endpoint
 
 ```elixir
-nasa_image_url = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count"
+
+nasa_image_url = "https://api.nasa.gov/planetary/apod?api_key=#{api_key}"
 
 nasa_image_url
 |> Req.get()
@@ -22,3 +25,5 @@ nasa_image_url
 |> then(fn {:ok, %{body: image}} -> Kino.Image.new(image, :jpeg) end)
 
 ```
+
+<!-- livebook:{"offset":508,"stamp":{"token":"XCP.Am0o_8fvJ-G5dwlE9S5VgfJn-oEx2JWlN0jUZM1059SWMeJI6HnE-7wB6A0CGGeITCCvyvcs2Eo_cqak61M6mlEnQWWGtWoX3CEOkP7vCW7Ipg","version":2}} -->
