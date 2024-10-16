@@ -1,0 +1,24 @@
+# Untitled notebook
+
+```elixir
+Mix.install([
+  {:req, "~> 0.5.0"},
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.14.1"}
+])
+```
+
+## Nasa Image API
+
+Fetch a single Image from the NASA Image Api Endpoint
+
+```elixir
+nasa_image_url = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count"
+
+nasa_image_url
+|> Req.get()
+|> then(fn {:ok, %Req.Response{body: %{"url" => url}}} -> url end)
+|> Req.get()
+|> then(fn {:ok, %{body: image}} -> Kino.Image.new(image, :jpeg) end)
+
+```
