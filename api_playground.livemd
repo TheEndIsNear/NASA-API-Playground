@@ -60,11 +60,10 @@ end
 ```elixir
 nasa_image_url = "https://api.nasa.gov/planetary/apod?api_key=#{api_key}"
 
-{:ok, %{body: body}} =
+{:ok, image} =
   nasa_image_url
   |> Req.get()
-
-{:ok, image} = NasaAPI.Image.new(body)
+  |> then(fn {:ok, %{body: body}} -> NasaAPI.Image.new(body) end)
 
 image
 ```
@@ -77,4 +76,4 @@ asteroid_url = "https://api.nasa.gov/neo/rest/v1/feed?start_date=2024-10-15&end_
 Req.get(asteroid_url)
 ```
 
-<!-- livebook:{"offset":1591,"stamp":{"token":"XCP.L7w4seILlflrZOi2rV89enHJ2w95RpR6lNCstVJCqoiC7oWfW86z4FynIm1Q7xTdJP22OhFdnfQfpy5jIMg-8cO26ruZLK3mSwTMcK_qH-Ti5A","version":2}} -->
+<!-- livebook:{"offset":1609,"stamp":{"token":"XCP.4x9Iyy9A9l9MXHVw0Ba76GLO8mZ2BGvMw2UzWE2qMAaAVFWAlAoMHIdo3NdOI1CJPad0VmHeb-XKgc4tMt1n5spmtEjCVPbyQN8riilTSMAw_w","version":2}} -->
