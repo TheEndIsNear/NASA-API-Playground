@@ -4,26 +4,77 @@
 Mix.install([
   {:req, "~> 0.5.0"},
   {:jason, "~> 1.4"},
-  {:kino, "~> 0.14.1"}
-])
+  {:kino, "~> 0.14.1"},
+  {:ecto, "~> 3.12"}
+],
+ consolidate_protocols: false )
 
 api_key = System.fetch_env!("LB_API_KEY")
 ```
 
-## Nasa Image API
+## Astronomy Picture of the Day
 
 Fetch a single Image from the NASA Image Api Endpoint
 
 ```elixir
+defmodule NasaAPI.Image do
+  alias NasaAPI.Image
+  use Ecto.Schema
+  import Ecto.Changeset
 
-nasa_image_url = "https://api.nasa.gov/planetary/apod?api_key=#{api_key}"
+  @valid_params ~w(copyright date explanation hdurl media_type service_version title url)a
 
-nasa_image_url
-|> Req.get()
-|> then(fn {:ok, %Req.Response{body: %{"url" => url}}} -> url end)
-|> Req.get()
-|> then(fn {:ok, %{body: image}} -> Kino.Image.new(image, :jpeg) end)
+  schema "image" do
+    field(:copyright, :string)
+    field(:date, :string)
+    field(:explanation, :string)
+    field(:hdurl, :string)
+    field(:media_type, :string)
+    field(:service_version, :string)
+    field(:title, :string)
+    field(:url, :string)
+  end
 
+  def new(params) do
+    %Image{}
+    |> changeset(params)
+    |> apply_action(:insert)
+  end
+
+  def changeset(%Image{} = image, params \\ %{}) do
+    image
+    |> cast(params, @valid_params)
+  end
+
+  defimpl Kino.Render, for: Image do
+    def to_livebook(image) do
+      image.hdurl
+      |> Req.get()
+      |> then(fn {:ok, %{body: image}} -> Kino.Image.new(image, :jpeg) end)
+      |> Kino.Render.to_livebook()
+    end
+  end
+end
 ```
 
-<!-- livebook:{"offset":508,"stamp":{"token":"XCP.Am0o_8fvJ-G5dwlE9S5VgfJn-oEx2JWlN0jUZM1059SWMeJI6HnE-7wB6A0CGGeITCCvyvcs2Eo_cqak61M6mlEnQWWGtWoX3CEOkP7vCW7Ipg","version":2}} -->
+```elixir
+nasa_image_url = "https://api.nasa.gov/planetary/apod?api_key=#{api_key}"
+
+{:ok, %{body: body}} =
+  nasa_image_url
+  |> Req.get()
+
+{:ok, image} = NasaAPI.Image.new(body)
+
+image
+```
+
+## Astroids Near Earth Object Web Service
+
+```elixir
+asteroid_url = "https://api.nasa.gov/neo/rest/v1/feed?start_date=2024-10-15&end_date=2024-10-16&api_key=#{api_key}"
+
+Req.get(asteroid_url)
+```
+
+<!-- livebook:{"offset":1591,"stamp":{"token":"XCP.L7w4seILlflrZOi2rV89enHJ2w95RpR6lNCstVJCqoiC7oWfW86z4FynIm1Q7xTdJP22OhFdnfQfpy5jIMg-8cO26ruZLK3mSwTMcK_qH-Ti5A","version":2}} -->
