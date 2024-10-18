@@ -2,12 +2,10 @@
 
 ```elixir
 Mix.install([
-  {:req, "~> 0.5.0"},
-  {:jason, "~> 1.4"},
-  {:kino, "~> 0.14.1"},
-  {:ecto, "~> 3.12"}
+  {:nasa_api, git: "https://github.com/TheEndIsNear/nasa_api.git"},
+  {:kino, "~> 0.14.1"}
 ],
- consolidate_protocols: false )
+ consolidate_protocols: false)
 
 api_key = System.fetch_env!("LB_API_KEY")
 ```
@@ -17,63 +15,12 @@ api_key = System.fetch_env!("LB_API_KEY")
 Fetch a single Image from the NASA Image Api Endpoint
 
 ```elixir
-defmodule NasaAPI.Image do
-  alias NasaAPI.Image
-  use Ecto.Schema
-  import Ecto.Changeset
+Application.put_env(:nasa_api, :api_key, api_key)
 
-  @valid_params ~w(copyright date explanation hdurl media_type service_version title url)a
+image = NasaApi.fetch_planetary_hd_picture()
 
-  schema "image" do
-    field(:copyright, :string)
-    field(:date, :string)
-    field(:explanation, :string)
-    field(:hdurl, :string)
-    field(:media_type, :string)
-    field(:service_version, :string)
-    field(:title, :string)
-    field(:url, :string)
-  end
+Kino.Image.new(image, :jpeg)
 
-  def new(params) do
-    %Image{}
-    |> changeset(params)
-    |> apply_action(:insert)
-  end
-
-  def changeset(%Image{} = image, params \\ %{}) do
-    image
-    |> cast(params, @valid_params)
-  end
-
-  defimpl Kino.Render, for: Image do
-    def to_livebook(image) do
-      image.hdurl
-      |> Req.get()
-      |> then(fn {:ok, %{body: image}} -> Kino.Image.new(image, :jpeg) end)
-      |> Kino.Render.to_livebook()
-    end
-  end
-end
 ```
 
-```elixir
-nasa_image_url = "https://api.nasa.gov/planetary/apod?api_key=#{api_key}"
-
-{:ok, image} =
-  nasa_image_url
-  |> Req.get()
-  |> then(fn {:ok, %{body: body}} -> NasaAPI.Image.new(body) end)
-
-image
-```
-
-## Astroids Near Earth Object Web Service
-
-```elixir
-asteroid_url = "https://api.nasa.gov/neo/rest/v1/feed?start_date=2024-10-15&end_date=2024-10-16&api_key=#{api_key}"
-
-Req.get(asteroid_url)
-```
-
-<!-- livebook:{"offset":1609,"stamp":{"token":"XCP.4x9Iyy9A9l9MXHVw0Ba76GLO8mZ2BGvMw2UzWE2qMAaAVFWAlAoMHIdo3NdOI1CJPad0VmHeb-XKgc4tMt1n5spmtEjCVPbyQN8riilTSMAw_w","version":2}} -->
+<!-- livebook:{"offset":449,"stamp":{"token":"XCP.J-xuquyRK80oaqq2xtg2Ve8fAfZ29La7HyC000aDWlmd59CT42a9Ujh9EF5OxgdINDD6MaFUhhKcgR4tWlLGckbwcZ1Mzp9MKD8BOq4l5lCQhA","version":2}} -->
